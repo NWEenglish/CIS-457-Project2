@@ -3,7 +3,8 @@ import socket
 import json
 import select
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+centralSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+remoteSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Main
 def main():
@@ -68,14 +69,14 @@ def connectServer(serverName, serverPort):
         print(' Connecting...')
 
         serverAddress = (str(serverName), int(serverPort))
-        sock.connect(serverAddress)
+        centralSock.connect(serverAddress)
 
         print(' Connected!')
         
         print("Enter username, hostname, and connection speed(Ethernet,T1,etc.)")
         print("<username hostname speed>")
         hostInfo = input(" ~ ")
-        sock.sendall(hostInfo.encode())
+        centralSock.sendall(hostInfo.encode())
 
     except:
         print(' ERROR - Could NOT connect to server!')
@@ -86,7 +87,7 @@ def connect(serverName, serverPort):
         print(' Connecting...')
 
         serverAddress = (str(serverName), int(serverPort))
-        sock.connect(serverAddress)
+        remoteSock.connect(serverAddress)
 
         print(' Connected!')
 
@@ -98,9 +99,9 @@ def upload(filename):
     try:
         print("Uploading file description file...")
         msg = "UPLOAD " + filename
-        sock.sendall(msg.encode())
+        centralSock.sendall(msg.encode())
         file = open(filename, 'rb')
-        sock.sendall(file.read(1024))
+        centralSock.sendall(file.read(1024))
         print("File Uploaded")
     except:
         print("ERROR - file could not be uploaded")
@@ -114,15 +115,15 @@ def upload(filename):
 def retrieve(filename):
     print(" RETRIEVING DATA...")
     msg = "RETRIEVE " + filename
-    sock.sendall(msg.encode())
+    remoteSock.sendall(msg.encode())
     file = open(filename, 'w')
     totalData = []
     data = ''
 
     while (True):
-        ready = select.select([sock], [], [], 2)
+        ready = select.select([remoteSock], [], [], 2)
         if (ready[0]):
-            data = sock.recv(1024).decode()
+            data = remoteSock.recv(1024).decode()
         else:
             break
         totalData.append(data)
@@ -136,7 +137,7 @@ def quitConnection():
     try:
         msg = 'QUIT'
         sendMessage(msg)
-        sock.close()
+        remoteSock.close()
     except:
         print(' An error has occurred! This may be caused due to no connection.')
 
@@ -147,7 +148,7 @@ def quitConnection():
 def sendMessage(msg):
     try:
         # print("Sending %s" % msg)
-        sock.sendall(msg.encode())
+        remoteSock.sendall(msg.encode())
     except:
         print(' ERROR - Request NOT sent to server!')
 
