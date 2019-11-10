@@ -1,7 +1,30 @@
 #GUI
 import tkinter
+import socket
 from tkinter import ttk
 from tkinter import scrolledtext
+from tkinter import messagebox
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+#Connects to server
+#Error checks user input
+#Sends username, hostname, and connection speed to server
+def connectServer():
+    servIP = serverHostText.get()
+    port = portText.get()
+    username = usernameText.get()
+    hostname = userHostText.get()
+    speed = speedOps.get()
+    if len(servIP) > 0 and len(port) > 0 and len(username) > 0 and len(hostname) > 0 and len(speed) > 0:
+        serverAddress = (str(servIP), int(port))
+        sock.connect(serverAddress)
+        messagebox.showinfo("Connection", "Connected to Central Server")
+        msg = str(username) + " " + str(hostname) + " " + str(speed)
+        sock.sendall(msg.encode())
+    else:
+        messagebox.showerror("Invalid Input", "Please Fill In All Fields")
+
 
 gui = tkinter.Tk()
 gui.title("NAP Host GUI")
@@ -21,7 +44,7 @@ portLabel.grid(column = 2, row = 1)
 portText = tkinter.Entry(gui, width = 6)
 portText.grid(column = 3, row = 1, sticky = "W")
 
-connButton = tkinter.Button(gui, text = "Connect", width = 20)
+connButton = tkinter.Button(gui, text = "Connect", width = 20, command = connectServer)
 connButton.grid(column = 4, row = 1, pady = 10, columnspan = 2)
 
 usernameLabel = tkinter.Label(gui, text = "Username: ")
