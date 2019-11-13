@@ -69,8 +69,25 @@ def disconnect():
 #Sends keyword to the central server and displays feedback in modified treeview widget
 def keywordSearch():
     key = searchText.get()
+    totalData = []
+    i, j = 0
+    
     if len(key) > 0:
         sock.sendall(key.encode())
+        
+        while (True):
+            ready = select.select([sock], [], [], 2)
+            if (ready[0]):
+                data = sock.recv(1024).decode()
+            else:
+                break
+            totalData.append(data)
+            
+        while(i < len(totalData)):
+            searchResult.insert("", j+1, text = totalData[i], values=(totalData[i+1],
+                                totalData[i+2], totalData[i+3]))
+            j -= -1
+            i += 4
     else:
         messagebox.showerror("Invalid Input", "Please enter in a keyword")
 
@@ -203,15 +220,15 @@ searchText.grid(column = 1, row = 5, sticky = "W", columnspan = 3)
 searchButton = tkinter.Button(gui, text = "Search", width = 20, command = keywordSearch)
 searchButton.grid(column = 4, row = 5, columnspan = 2)
 
-searchResult = ttk.Treeview(gui, columns=("hostname", "port", "filename"), height = 4)
-searchResult.column("#0", width = 120, minwidth = 120, stretch = tkinter.NO)
-searchResult.heading("#0", text="Speed", anchor=tkinter.W)
+searchResult = ttk.Treeview(gui, columns=("hostname", "port", "speed"), height = 4)
+searchResult.column("#0", width = 195, minwidth = 195, stretch = tkinter.NO)
+searchResult.heading("#0", text="Filename", anchor=tkinter.W)
 searchResult.column("hostname", width = 195, minwidth = 195, stretch = tkinter.NO)
 searchResult.heading("hostname", text="Hostname", anchor=tkinter.W)
 searchResult.column("port", width = 120, minwidth = 120, stretch = tkinter.NO)
 searchResult.heading("port", text="Port", anchor=tkinter.W)
-searchResult.column("filename", width = 195, minwidth = 195, stretch = tkinter.NO)
-searchResult.heading("filename", text="Filename", anchor=tkinter.W)
+searchResult.column("speed", width = 120, minwidth = 120, stretch = tkinter.NO)
+searchResult.heading("speed", text= "Speed", anchor=tkinter.W)
 searchResult.grid(column = 0, row = 6, pady = 10, padx = 20, columnspan = 10, rowspan = 5)
 ##############################################################################
 
