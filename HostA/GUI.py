@@ -5,7 +5,6 @@ import select
 from tkinter import ttk
 from tkinter import scrolledtext
 from tkinter import messagebox
-from tkinter import filedialog
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
