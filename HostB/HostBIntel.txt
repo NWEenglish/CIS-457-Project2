@@ -1,2 +1,0 @@
-Host B contains a text file and 3 png image files. They are not the
-not-team-members images

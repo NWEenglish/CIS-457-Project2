@@ -30,13 +30,14 @@ while (True):
             print("Received: %s\n" % data)
 
             if (data):
-                # Retrieves a specified file from the current directory.
                 if (command[0] == "RETRIEVE"):
                     try:
                         file = open(command[1], "rb")
-                        connection.sendall(file.read(1024))
+                        data = file.read(1024)
+                        while data:
+                            connection.send(data)
+                            data = file.read(1024)
                         file.close()
-                    # If the file doesn't exist, the error will be thrown.
                     except:
                         print('ERROR - Client requested an invalid file.')
                         connection.sendall(''.encode())

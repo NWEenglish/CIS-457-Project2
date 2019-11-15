@@ -136,20 +136,17 @@ def remoteHost():
                 remoteSock.sendall(msg.encode())
 
                 file = open(command[1], 'w')
-                totalData = []
                 data = ''
 
                 while (True):
                     ready = select.select([remoteSock], [], [], 2)
                     if (ready[0]):
-                        data = remoteSock.recv(1024).decode()
+                        data = remoteSock.recv(1024)
+                        file.write(data)
                     else:
                         break
-
-                    totalData.append(data)
-                    file.write(''.join(totalData))
-                    file.close()
-                    ftpResult.insert(tkinter.INSERT, "Retrieved " + command[1] + "\n")
+                file.close()
+                ftpResult.insert(tkinter.INSERT, "Retrieved " + command[1] + "\n")
             except:
                 ftpResult.insert(tkinter.INSERT, "Retrieval Failed\n")
                 messagebox.showerror("FTP ERROR", "Could not retrieve file from the server")
