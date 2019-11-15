@@ -9,7 +9,7 @@ import socket
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-serverAddress = ('hostA', 16141)
+serverAddress = ('localhost', 16141)
 print("Starting on %s port %s" % serverAddress)
 sock.bind(serverAddress)
 sock.listen(1)
