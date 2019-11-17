@@ -1,6 +1,7 @@
 # Central Server
 import socket
 import _thread
+import sys
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -22,6 +23,13 @@ fullDesc = []
 # Array that holds what file is owned by who
 author = []
 
+# List that holds the identity of all users who have connected.
+identityList = []
+
+# All connections
+allConns = []
+
+
 def clientThread(connection):
     # Tells the user the connection is successful.
     try:
@@ -30,20 +38,26 @@ def clientThread(connection):
         user = connection.recv(1024).decode()
         user = user.split(" ")
         allUsers.append(user[0])
+        allConns.append(connection)
+
+        identityList.append(user[0])
+        identityList.append(str(clientAddress))
+        identityList.append(user[2])
+        identityList.append(user[3])
+
         print("Connection with ", clientAddress)
-        print("    User: ", user[0])
+        print("User: ", user[0])
 
         # Listens for the selected input from the client.
-        while (True):
+        while True:
             data = connection.recv(1024).decode()
             command = data.split(" ")
             print("Received: %s\n" % data)
-            if (data):
+            if data:
 
                 # Do a keyword search.
-                if (command[0] == "KEYWORD_SEARCH"):
+                if command[0] == "KEYWORD_SEARCH":
                     term = command[1]
-                    whoHasTerm = []
                     foundWho = ""
 
                     whoHasTerm = ";".join(s for s in fullDesc if term.lower() in s.lower())
@@ -55,11 +69,31 @@ def clientThread(connection):
                     connection.sendall(foundWho.encode())
 
                 # Get a file description.
-                elif (command[0] == "FILE_DESC"):
-                    j = 0
-
+                elif command[0] == "FILE_DESC":
                     desc = connection.recv(1024).decode()
                     desc = desc.split(";")
+                    j = 0
+
+                    # Find the IP with Port from the current connected client.
+                    thisIPAndPort = str(connection)
+                    thisIPAndPort = thisIPAndPort.split("=")
+                    thisIPAndPort = thisIPAndPort[len(thisIPAndPort) - 1]
+                    thisIPAndPort = thisIPAndPort[0:(len(thisIPAndPort) - 1)]
+
+                    # Get the username.
+                    thisUser = identityList[identityList.index(thisIPAndPort) - 1]
+
+                    # Get the host IP.
+                    tempHost = thisIPAndPort.split(",")
+                    tempHost = tempHost[0]
+                    tempHost = tempHost[2:(len(tempHost) - 1)]
+
+                    # Get the port number for the remote host.
+                    i = identityList.index(thisIPAndPort)
+                    tempPort = identityList[i + 1]
+
+                    # Get the speed for the client.
+                    tempSpeed = identityList[identityList.index(thisIPAndPort) + 2]
 
                     if desc[len(desc)-1] == '':
                         desc.pop()
@@ -67,31 +101,55 @@ def clientThread(connection):
                     for x in range(len(desc)):
                         if j % 2 == 0:
                             tempFilename = desc[j]
-                            tempHost = user[1]
-                            tempPort = user[2]
-                            tempSpeed = user[3]
                             thisDesc = tempFilename + ";" + tempHost + ";" + tempPort + ";" + tempSpeed
                             fileDesc.append(thisDesc)
-                            author.append(user[0])
+                            author.append(thisUser)
                             j += 1
 
                         elif j % 2 == 1:
                             fullDesc.append(desc[j])
-                            author.append(user[0])
+                            author.append(thisUser[0])
                             j += 1
 
                 # Closes the connection with the server.
-                elif (command[0] == "QUIT"):
+                elif command[0] == "QUIT":
 
-                    for x in author:
-                        index = author.index(user[0])
+                    # Used to get the ip and port of the current client.
+                    thisIPAndPort = str(connection)
+                    thisIPAndPort = thisIPAndPort.split("=")
+                    thisIPAndPort = thisIPAndPort[len(thisIPAndPort) - 1]
+                    thisIPAndPort = thisIPAndPort[0:(len(thisIPAndPort) - 1)]
+
+                    # Removes all traces of the client that is quitting.
+                    i = identityList.index(thisIPAndPort)
+                    identityList.pop(i + 2)                 # Speed
+                    identityList.pop(i + 1)                 # Remote Port
+                    identityList.pop(i)                     # IP
+                    thisUser = identityList[i - 1]
+                    identityList.pop(i - 1)                 # Username
+
+                    # Check if items are in list to begin with.
+                    if len(author) > 0:
+                        # Remove from all other files.
+                        index = author.index(thisUser)
                         author.remove(author[index])
                         allUsers.remove(allUsers[index])
                         fileDesc.remove(fileDesc[index])
                         fullDesc.remove(fullDesc[index])
 
                     # Close connection*
-                    connection.close()
+                    print("Closing connection for ", thisUser)
+                    print("HERE 1")
+                    allConns.remove(connection)
+                    print("HERE 2")
+                    # connection.close()
+                    try:
+                        connection.close()
+                    except Exception:
+                        print(Exception)
+
+
+                    print("HERE 3")
                     break
 
                 else:
@@ -99,12 +157,15 @@ def clientThread(connection):
             else:
                 break
     finally:
-        print("Closing connection")
-        connection.close()
-        return
+        print("Closing connection for all devices")
+        if len(allConns) > 0:
+            for x in allConns:
+                x.close()
+        sys.exit()
+
 
 # Starts the connection process with the client.
-while (True):
+while True:
     print("Waiting for a connection...\n")
     connection, clientAddress = sock.accept()
     _thread.start_new_thread(clientThread, (connection,))

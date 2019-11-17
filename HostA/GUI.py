@@ -10,6 +10,7 @@ from tkinter import filedialog
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 remoteSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+
 # Connects to central server
 # Error checks user input
 # Sends username, hostname, and connection speed to server
@@ -48,7 +49,7 @@ def shareFile():
         try:
             msg = "FILE_DESC " + path
             sock.sendall(msg.encode())
-            file = open(path, "rb")                            # ---------------------------------------------------------------------------------
+            file = open(path, "rb")
             sock.sendall(file.read(1024))
             messagebox.showinfo("File Description", "Description file successfully uploaded")
         except:
@@ -79,12 +80,14 @@ def keywordSearch():
     i = 0
     j = 0
 
+    # print("HERE ", key)
+
     if len(key) > 0:
 
         # Clear table
         for x in searchResult.get_children():
             searchResult.delete(x)
-                
+
         msg = "KEYWORD_SEARCH " + key
         sock.sendall(msg.encode())
 
@@ -99,13 +102,19 @@ def keywordSearch():
             # Extract Data
             dataArray = totalData[0].split(";")
 
+            # Check last item is not an empty item.
             if dataArray[len(dataArray) - 1] == '':
-                dataArray.pop()
+                dataArray.pop(len(dataArray) - 1)
 
-            print(dataArray)
+            # Check that the first quote is removed in IP.
+            # Solve in Central Server
 
-        while (j < (( len(dataArray) ) / 4) ):
-            searchResult.insert("", j + 1, text=dataArray[i], values=(dataArray[i + 1], dataArray[i + 2], dataArray[i + 3]))
+            # print(dataArray)
+
+        # Place items in the table.
+        while (j < ((len(dataArray)) / 4)):
+            searchResult.insert("", j + 1, text=dataArray[i],
+                                values=(dataArray[i + 1], dataArray[i + 2], dataArray[i + 3]))
             j += 1
             i += 4
     else:
