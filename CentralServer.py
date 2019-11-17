@@ -139,17 +139,12 @@ def clientThread(connection):
 
                     # Close connection*
                     print("Closing connection for ", thisUser)
-                    print("HERE 1")
                     allConns.remove(connection)
-                    print("HERE 2")
                     # connection.close()
                     try:
                         connection.close()
                     except Exception:
                         print(Exception)
-
-
-                    print("HERE 3")
                     break
 
                 else:

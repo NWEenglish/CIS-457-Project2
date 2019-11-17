@@ -183,7 +183,7 @@ def remoteHost():
 
 
 gui = tkinter.Tk()
-gui.title("NAP Host GUI")
+gui.title("NAP Host A")
 gui.geometry("750x525")
 
 ##################### CONNECTING TO CENTRAL SERVER ###########################

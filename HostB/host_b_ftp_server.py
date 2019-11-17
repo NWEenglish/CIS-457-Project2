@@ -6,6 +6,7 @@
 # Date:     10-14-2019
 
 import socket
+import _thread
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -14,11 +15,7 @@ print("Starting on %s port %s" % serverAddress)
 sock.bind(serverAddress)
 sock.listen(1)
 
-# Starts the connection process with the client.
-while (True):
-    print("Waiting for a connection...\n")
-    connection, clientAddress = sock.accept()
-
+def clientThread(connection):
     # Tells the user the connection is successful.
     try:
         print("Connection with ", clientAddress)
@@ -55,3 +52,9 @@ while (True):
     finally:
         print("Closing connection")
         connection.close()
+
+# Starts the connection process with the client.
+while (True):
+    print("Waiting for a connection...\n")
+    connection, clientAddress = sock.accept()
+    _thread.start_new_thread(clientThread, (connection, ))
