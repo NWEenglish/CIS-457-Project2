@@ -40,9 +40,10 @@ def clientThread(connection):
         allConns.append(connection)
 
         identityList.append(user[0])
-        identityList.append(str(clientAddress))
+        identityList.append(user[1])
         identityList.append(user[2])
         identityList.append(user[3])
+        identityList.append(str(clientAddress))
 
         print("Connection with ", clientAddress)
         print("User: ", user[0])
@@ -85,19 +86,20 @@ def clientThread(connection):
                     thisIPAndPort = thisIPAndPort[0:(len(thisIPAndPort) - 1)]
 
                     # Get the username.
-                    thisUser = identityList[identityList.index(thisIPAndPort) - 1]
+                    thisUser = identityList[identityList.index(thisIPAndPort) - 4]
 
                     # Get the host IP.
-                    tempHost = thisIPAndPort.split(",")
-                    tempHost = tempHost[0]
-                    tempHost = tempHost[2:(len(tempHost) - 1)]
-
+#                    tempHost = thisIPAndPort.split(",")
+#                    tempHost = tempHost[0]
+#                    tempHost = tempHost[2:(len(tempHost) - 1)]
+                    
                     # Get the port number for the remote host.
                     i = identityList.index(thisIPAndPort)
-                    tempPort = identityList[i + 1]
+                    tempHost = identityList[i - 3]
+                    tempPort = identityList[i - 2]
 
                     # Get the speed for the client.
-                    tempSpeed = identityList[identityList.index(thisIPAndPort) + 2]
+                    tempSpeed = identityList[identityList.index(thisIPAndPort) - 1]
 
                     if desc[len(desc)-1] == '':
                         desc.pop()
@@ -125,11 +127,12 @@ def clientThread(connection):
 
                     # Removes all traces of the client that is quitting.
                     i = identityList.index(thisIPAndPort)
-                    identityList.pop(i + 2)                 # Speed
-                    identityList.pop(i + 1)                 # Remote Port
                     identityList.pop(i)                     # IP
-                    thisUser = identityList[i - 1]
-                    identityList.pop(i - 1)                 # Username
+                    thisUser = identityList[i - 4]
+                    identityList.pop(i - 1)                 # Speed
+                    identityList.pop(i - 2)                 # Remote Port
+                    identityList.pop(i - 3)                 # Hostname
+                    identityList.pop(i - 4)                 # Username
 
                     # Loop through all lists to remove this user.
                     x = 0
@@ -142,7 +145,7 @@ def clientThread(connection):
                         else:
                             x += 1
 
-                    # Close connection*
+                    # Close connection
                     print("Closing connection for", thisUser)
                     allConns.remove(connection)
                     try:
