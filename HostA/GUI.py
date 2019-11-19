@@ -26,7 +26,7 @@ def connectServer():
         sock.connect(serverAddress)
         messagebox.showinfo("Connection", "Connected to central server")
 
-        msg = str(username) + " " + str(hostname) + " " + str(16242) + " " + str(speed)
+        msg = str(username) + " " + str(hostname) + " " + str(16141) + " " + str(speed)
         sock.sendall(msg.encode())
 
         disButton["state"] = tkinter.NORMAL

@@ -106,11 +106,6 @@ def keywordSearch():
             if dataArray[len(dataArray) - 1] == '':
                 dataArray.pop(len(dataArray) - 1)
 
-            # Check that the first quote is removed in IP.
-            # Solve in Central Server
-
-            # print(dataArray)
-
         # Place items in the table.
         while (j < ((len(dataArray)) / 4)):
             searchResult.insert("", j + 1, text=dataArray[i],

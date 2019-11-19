@@ -37,7 +37,6 @@ def clientThread(connection):
         # Gets the user that connected and add to user table
         user = connection.recv(1024).decode()
         user = user.split(" ")
-        allUsers.append(user[0])
         allConns.append(connection)
 
         identityList.append(user[0])
@@ -63,6 +62,11 @@ def clientThread(connection):
                     whoHasTerm = ";".join(s for s in fullDesc if term.lower() in s.lower())
                     whoHasTerm = whoHasTerm.split(";")
 
+                    # Remove empty items.
+                    while '' in whoHasTerm:
+                        whoHasTerm.remove('')
+
+                    # Concat all items with matching descriptions for the client.
                     for x in whoHasTerm:
                         foundWho += fileDesc[fullDesc.index(x)] + ";"
 
@@ -108,7 +112,6 @@ def clientThread(connection):
 
                         elif j % 2 == 1:
                             fullDesc.append(desc[j])
-                            author.append(thisUser[0])
                             j += 1
 
                 # Closes the connection with the server.
@@ -128,23 +131,24 @@ def clientThread(connection):
                     thisUser = identityList[i - 1]
                     identityList.pop(i - 1)                 # Username
 
-                    # Check if items are in list to begin with.
-                    if len(author) > 0:
-                        # Remove from all other files.
-                        index = author.index(thisUser)
-                        author.remove(author[index])
-                        allUsers.remove(allUsers[index])
-                        fileDesc.remove(fileDesc[index])
-                        fullDesc.remove(fullDesc[index])
+                    # Loop through all lists to remove this user.
+                    x = 0
+                    while x < len(author):
+                        if thisUser == author[x]:
+                            # Remove from all other files.
+                            author.remove(author[x])
+                            fileDesc.remove(fileDesc[x])
+                            fullDesc.remove(fullDesc[x])
+                        else:
+                            x += 1
 
                     # Close connection*
-                    print("Closing connection for ", thisUser)
+                    print("Closing connection for", thisUser)
                     allConns.remove(connection)
-                    # connection.close()
                     try:
                         connection.close()
                     except Exception:
-                        print(Exception)
+                        print("Something went wrong closing connection!", Exception)
                     break
 
                 else:
@@ -152,11 +156,11 @@ def clientThread(connection):
             else:
                 break
     finally:
-        print("Closing connection for all devices")
-        if len(allConns) > 0:
-            for x in allConns:
-                x.close()
-        sys.exit()
+        print("Connection terminated!")
+        # if len(allConns) > 0:
+        #     for x in allConns:
+        #         x.close()
+        # sys.exit()
 
 
 # Starts the connection process with the client.
