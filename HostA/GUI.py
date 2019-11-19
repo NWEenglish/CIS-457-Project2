@@ -1,3 +1,8 @@
+# Authors:  Denver DeBoer
+#           Nicholas English
+#           Kevin Smith
+# Date:     11-19-2019
+
 # GUI
 import tkinter
 import socket

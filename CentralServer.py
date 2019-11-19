@@ -1,3 +1,8 @@
+# Authors:  Denver DeBoer
+#           Nicholas English
+#           Kevin Smith
+# Date:     11-19-2019
+
 # Central Server
 import socket
 import _thread
@@ -87,11 +92,6 @@ def clientThread(connection):
 
                     # Get the username.
                     thisUser = identityList[identityList.index(thisIPAndPort) - 4]
-
-                    # Get the host IP.
-#                    tempHost = thisIPAndPort.split(",")
-#                    tempHost = tempHost[0]
-#                    tempHost = tempHost[2:(len(tempHost) - 1)]
                     
                     # Get the port number for the remote host.
                     i = identityList.index(thisIPAndPort)
@@ -160,11 +160,6 @@ def clientThread(connection):
                 break
     finally:
         print("Connection terminated!")
-        # if len(allConns) > 0:
-        #     for x in allConns:
-        #         x.close()
-        # sys.exit()
-
 
 # Starts the connection process with the client.
 while True:
